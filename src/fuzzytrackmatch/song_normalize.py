@@ -8,10 +8,10 @@ featWithSpace = re.compile(r" feat[. ].*?$", re.IGNORECASE)    # does the string
 @dataclass
 class NormalizedSongInfo:
     title: str
-    subtitle: str
+    subtitle: str|None
     artists: list[str]  
 
-def normalize_title_and_artists(title:str, subtitle:str, artist:str):
+def normalize_title_and_artists(artist: str, title:str, subtitle:str=None):
     '''
 Attempts to normalize the given title, subtitle, and artist by 
 splitting the `artist` string into multiple artist names, and
@@ -24,12 +24,12 @@ any secondary artist names.'''
         title = split[0]
         artists = artists + split[1]
 
-    if anyFeat.search(subtitle) != None:
+    if subtitle != None and anyFeat.search(subtitle) != None:
         split = separate_title_and_artist(subtitle)
         subtitle = split[0]
         artists = artists + split[1]
     
-    return NormalizedSongInfo(title=title, subtitle=subtitle, artists=artist)
+    return NormalizedSongInfo(title=title, subtitle=subtitle, artists=artists)
 
 
 def separate_title_and_artist(title:str):
