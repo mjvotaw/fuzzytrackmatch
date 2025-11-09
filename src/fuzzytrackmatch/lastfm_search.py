@@ -27,8 +27,22 @@ class LastFMSearch(BaseGenreSearch):
         if PRINT_DEBUG:
             print(f"searching lastfm for artist='{artist}', title='{title}', subtitle='{subtitle}'")
 
-        track_search = self.lastfm.search_for_track(artist_name=artist, track_name=title)
+        # lastfm only lists a single artist for songs, so only search for
+        # the first artist in the given list
+        main_artist = normalized_song_info.artists[0]
+        normalized_title = normalized_song_info.title
+        if normalized_song_info.subtitle is not None:
+            normalized_title = f"{normalized_title} {normalized_song_info.subtitle}"
+
+        track_search = self.lastfm.search_for_track(artist_name=main_artist, track_name=normalized_title)
         tracks = track_search.get_next_page()
+
+        # And just in case, search for the unnormalized data as well
+        unnormalized_title = title
+        if subtitle is not None:
+            unnormalized_title = f"{unnormalized_title} {subtitle}"
+        unnormalized_search = self.lastfm.search_for_track(artist_name=artist, track_name=unnormalized_title)
+        tracks.extend(unnormalized_search.get_next_page())
         if PRINT_DEBUG:
             print(f"found {len(tracks)} tracks")
         track_infos = self._lastfm_to_basic_track(tracks)
@@ -37,10 +51,16 @@ class LastFMSearch(BaseGenreSearch):
     def _perform_artist_search(self, normalized_artists: list[str], artist: str):
         # lastfm only lists a single artist for songs, so only search for
         # the first artist in the given list
-            artist_search = self.lastfm.search_for_artist(normalized_artists[0])
-            normalized_artists = artist_search.get_next_page()
-            artist_infos = self._lastfm_to_basic_artist(normalized_artists)
-            return artist_infos
+        artist_search = self.lastfm.search_for_artist(normalized_artists[0])
+
+        # If the normalized artist info didn't return any results,
+        # fall back to the unnormalized arist string
+        if artist_search.get_total_result_count() == 0:
+            artist_search = self.lastfm.search_for_artist(artist)
+        
+        normalized_artists = artist_search.get_next_page()
+        artist_infos = self._lastfm_to_basic_artist(normalized_artists)
+        return artist_infos
 
     def _get_genre_tags_from_artist(self, artist: BasicArtistInfo[pylast.Artist]):
         return self._fetch_genres(artist.raw_object)
@@ -51,11 +71,11 @@ class LastFMSearch(BaseGenreSearch):
 
     #region other private methods
     def _lastfm_to_basic_artist(self, artists: list[pylast.Artist]):
-        artist_infos = [BasicArtistInfo(artists=[a.name], raw_object=a) for a in artists]
+        artist_infos = [BasicArtistInfo(artists=[a.name], source_url=a.get_url(), raw_object=a) for a in artists]
         return artist_infos
 
     def _lastfm_to_basic_track(self, tracks: list[pylast.Track]):
-        track_infos = [BasicTrackInfo(title=track.title, artists=[track.artist.name], raw_object=track) for track in tracks]
+        track_infos = [BasicTrackInfo(title=track.title, artists=[track.artist.name], source_url=track.get_url(), raw_object=track) for track in tracks]
         return track_infos
 
     

@@ -3,6 +3,7 @@ from difflib import SequenceMatcher
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional
 from .song_normalize import NormalizedSongInfo, normalize_title_and_artists, split_artists
+from .genre_whitelist import GenreWhitelist
 
 @dataclass
 class GenreTag:
@@ -15,22 +16,26 @@ T = TypeVar('T')
 class BasicTrackInfo(Generic[T]):
     title: str
     artists: list[str]
+    source_url: str
     raw_object:T
 
 @dataclass
 class BasicArtistInfo(Generic[T]):
     artists: list[str]
+    source_url: str
     raw_object: T
     
 @dataclass 
 class ArtistAndGenres(Generic[T]):
     artist:BasicArtistInfo[T]
     genres: list[GenreTag]
+    canonicalized_genres: list[str]
 
 @dataclass
 class TrackAndGenres(Generic[T]):
     track:BasicTrackInfo[T]
     genres: list[GenreTag]
+    canonicalized_genres: list[str]
 
 PRINT_DEBUG=False
 
@@ -41,24 +46,31 @@ class BaseGenreSearch(ABC):
         self.artist_cutoff = artist_cutoff
         self.all_artists_weight = 1.0
         self.main_artist_weight = 0.5
+        self.wh = GenreWhitelist()
 
     def fetch_artist_genres(self, artist: str):
+        """Attempts to find the best matching artist and a list of genre tags for
+        the given artist string
+        """
         artist_info = self.fetch_artist(artist)
         if artist_info is None:
             return None
         genres = self._get_genre_tags_from_artist(artist_info)
-
-        artist_and_genre = ArtistAndGenres(artist=artist_info, genres=genres)
+        canonicalized_genres = self._canonicalize_genres(genres)
+        artist_and_genre = ArtistAndGenres(artist=artist_info, genres=genres, canonicalized_genres=canonicalized_genres)
         return artist_and_genre
     
     def fetch_track_genres(self, artist: str, title: str, subtitle: str=None):
-
+        """Attempts to find the best matching track and a list of genre tags for
+        the given artist, title, and subtitle
+        """
         track = self.fetch_track(artist, title, subtitle)
         if track is None:
             return None
         
         genres = self._get_genre_tags_from_track(track)
-        track_and_genres = TrackAndGenres(track=track, genres=genres)
+        canonicalized_genres = self._canonicalize_genres(genres)
+        track_and_genres = TrackAndGenres(track=track, genres=genres, canonicalized_genres=canonicalized_genres)
         return track_and_genres
 
     def fetch_artist(self, artist: str):
@@ -142,6 +154,10 @@ class BaseGenreSearch(ABC):
         """
         r = SequenceMatcher(None, a.strip(), b.strip()).ratio()
         return r
+    
+    def _canonicalize_genres(self, genres: list[GenreTag]) -> list[list[str]]:
+        genre_names = [g.name for g in genres]
+        return self.wh.resolve_genres(genre_names, 10)
     
     @abstractmethod
     def _perform_artist_search(self, normalized_artists: list[str], artist:str) -> list[BasicArtistInfo]:

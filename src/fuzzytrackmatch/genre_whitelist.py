@@ -17,7 +17,6 @@
 import codecs
 import os
 import yaml
-from .base_genre_search import GenreTag
 
 
 # default genre whitelist data was scraped from Wikipedia.
@@ -114,7 +113,7 @@ class GenreWhitelist:
         self.whitelist = load_whitelist(WHITELIST)
         self.c14n_branches = load_c14n_tree(C14N_TREE)
     
-    def resolve_genres(self, tags:list[str], count) -> list[list[str]]:
+    def resolve_genres(self, tags:list[str], count:int) -> list[list[str]]:
         """
         Resolves the given tags to so-called 'canonical' names.
         The 'canonical' name is a list of genres and parent genres.
