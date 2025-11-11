@@ -8,10 +8,10 @@ from .genre_whitelist import GenreWhitelist
 @dataclass
 class GenreTag:
     name: str
-    score: int
+    score: float
 
 T = TypeVar('T')
-
+A = TypeVar('A')
 @dataclass
 class BasicTrackInfo(Generic[T]):
     title: str
@@ -20,26 +20,28 @@ class BasicTrackInfo(Generic[T]):
     raw_object:T
 
 @dataclass
-class BasicArtistInfo(Generic[T]):
-    artists: list[str]
-    source_url: str
-    raw_object: T
-    
-@dataclass 
-class ArtistAndGenres(Generic[T]):
-    artist:BasicArtistInfo[T]
-    genres: list[GenreTag]
-    canonicalized_genres: list[str]
-
-@dataclass
 class TrackAndGenres(Generic[T]):
     track:BasicTrackInfo[T]
     genres: list[GenreTag]
-    canonicalized_genres: list[str]
+    canonicalized_genres: list[list[str]]
+
+@dataclass
+class BasicArtistInfo(Generic[A]):
+    artists: list[str]
+    source_url: str
+    raw_object: A
+    
+@dataclass 
+class ArtistAndGenres(Generic[A]):
+    artist:BasicArtistInfo[A]
+    genres: list[GenreTag]
+    canonicalized_genres: list[list[str]]
+
+
 
 PRINT_DEBUG=False
 
-class BaseGenreSearch(ABC):
+class BaseGenreSearch(ABC, Generic[T, A]):
 
     def __init__(self, title_cutoff=0.4, artist_cutoff=0.7):
         self.title_cutoff = title_cutoff
@@ -57,10 +59,10 @@ class BaseGenreSearch(ABC):
             return None
         genres = self._get_genre_tags_from_artist(artist_info)
         canonicalized_genres = self._canonicalize_genres(genres)
-        artist_and_genre = ArtistAndGenres(artist=artist_info, genres=genres, canonicalized_genres=canonicalized_genres)
+        artist_and_genre = ArtistAndGenres[A](artist=artist_info, genres=genres, canonicalized_genres=canonicalized_genres)
         return artist_and_genre
     
-    def fetch_track_genres(self, artist: str, title: str, subtitle: str=None):
+    def fetch_track_genres(self, artist: str, title: str, subtitle: str|None):
         """Attempts to find the best matching track and a list of genre tags for
         the given artist, title, and subtitle
         """
@@ -70,7 +72,7 @@ class BaseGenreSearch(ABC):
         
         genres = self._get_genre_tags_from_track(track)
         canonicalized_genres = self._canonicalize_genres(genres)
-        track_and_genres = TrackAndGenres(track=track, genres=genres, canonicalized_genres=canonicalized_genres)
+        track_and_genres = TrackAndGenres[T](track=track, genres=genres, canonicalized_genres=canonicalized_genres)
         return track_and_genres
 
     def fetch_artist(self, artist: str):
@@ -81,7 +83,7 @@ class BaseGenreSearch(ABC):
         matching_artist = self.find_best_matching_artist(result_artists, artists)
         return matching_artist
 
-    def fetch_track(self, artist:str, title: str, subtitle:str=None):
+    def fetch_track(self, artist:str, title: str, subtitle:str|None):
         """Attempts to find the best matching track for the given artist and title."""
         song_info = normalize_title_and_artists(artist, title, subtitle)
         if PRINT_DEBUG:
@@ -93,7 +95,7 @@ class BaseGenreSearch(ABC):
             print(matching_track)
         return matching_track
     
-    def find_best_matching_track(self, tracks: list[BasicTrackInfo], song_info:NormalizedSongInfo, artist: str, title: str, subtitle:str=None):
+    def find_best_matching_track(self, tracks: list[BasicTrackInfo], song_info:NormalizedSongInfo, artist: str, title: str, subtitle:str|None):
         """Given a list of tracks, finds the track that best matches the given artist and title.
         """
         best_match = None
@@ -160,11 +162,11 @@ class BaseGenreSearch(ABC):
         return self.wh.resolve_genres(genre_names, 10)
     
     @abstractmethod
-    def _perform_artist_search(self, normalized_artists: list[str], artist:str) -> list[BasicArtistInfo]:
+    def _perform_artist_search(self, normalized_artists: list[str], artist:str) -> list[BasicArtistInfo[A]]:
         pass
 
     @abstractmethod
-    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title:str, subtitle:str=None) -> list[BasicTrackInfo]:
+    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title:str, subtitle:str|None) -> list[BasicTrackInfo[T]]:
         pass
 
     @abstractmethod

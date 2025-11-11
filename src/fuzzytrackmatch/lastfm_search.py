@@ -15,7 +15,7 @@ REPLACE = {
 
 PRINT_DEBUG=False
 
-class LastFMSearch(BaseGenreSearch):
+class LastFMSearch(BaseGenreSearch[pylast.Track, pylast.Artist]):
     def __init__(self, api_key, min_genre_weight=10, title_cutoff=0.4, artist_cutoff=0.7):
         super().__init__(title_cutoff, artist_cutoff)
         self.lastfm = pylast.LastFMNetwork(api_key=api_key)
@@ -23,7 +23,7 @@ class LastFMSearch(BaseGenreSearch):
 
     #region BaseGenreSearch methods
 
-    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title: str, subtitle:str=None):
+    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title: str, subtitle:str|None):
         if PRINT_DEBUG:
             print(f"searching lastfm for artist='{artist}', title='{title}', subtitle='{subtitle}'")
 
@@ -58,8 +58,8 @@ class LastFMSearch(BaseGenreSearch):
         if artist_search.get_total_result_count() == 0:
             artist_search = self.lastfm.search_for_artist(artist)
         
-        normalized_artists = artist_search.get_next_page()
-        artist_infos = self._lastfm_to_basic_artist(normalized_artists)
+        found_artists = artist_search.get_next_page()
+        artist_infos = self._lastfm_to_basic_artist(found_artists)
         return artist_infos
 
     def _get_genre_tags_from_artist(self, artist: BasicArtistInfo[pylast.Artist]):
@@ -71,11 +71,11 @@ class LastFMSearch(BaseGenreSearch):
 
     #region other private methods
     def _lastfm_to_basic_artist(self, artists: list[pylast.Artist]):
-        artist_infos = [BasicArtistInfo(artists=[a.name], source_url=a.get_url(), raw_object=a) for a in artists]
+        artist_infos = [BasicArtistInfo(artists=[a.name or ""], source_url=a.get_url(), raw_object=a) for a in artists]
         return artist_infos
 
     def _lastfm_to_basic_track(self, tracks: list[pylast.Track]):
-        track_infos = [BasicTrackInfo(title=track.title, artists=[track.artist.name], source_url=track.get_url(), raw_object=track) for track in tracks]
+        track_infos = [BasicTrackInfo(title=track.title or "", artists=[track.artist and track.artist.name or ""], source_url=track.get_url(), raw_object=track) for track in tracks]
         return track_infos
 
     
@@ -118,9 +118,13 @@ class LastFMSearch(BaseGenreSearch):
             res = [el for el in res if (int(el.weight or 0)) >= min_genre_weight]
 
         # Get strings from tags.
+        tags: list[GenreTag] = []
+        for el in res:
+            name = el.item.get_name();
+            weight = el.weight
+            if name and weight:
+                tags.append(GenreTag(name=name.lower(), score=weight))
 
-        res = [GenreTag(el.item.get_name().lower(), el.weight) for el in res]
-
-        return res
+        return tags
 
     #endregion

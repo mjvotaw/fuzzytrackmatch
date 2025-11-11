@@ -11,7 +11,7 @@ class NormalizedSongInfo:
     subtitle: str|None
     artists: list[str]  
 
-def normalize_title_and_artists(artist: str, title:str, subtitle:str=None):
+def normalize_title_and_artists(artist: str, title:str, subtitle:str|None=None):
     '''
 Attempts to normalize the given title, subtitle, and artist by 
 splitting the `artist` string into multiple artist names, and
