@@ -23,41 +23,27 @@ class LastFMSearch(BaseGenreSearch[pylast.Track, pylast.Artist]):
 
     #region BaseGenreSearch methods
 
-    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title: str, subtitle:str|None):
-        if PRINT_DEBUG:
-            print(f"searching lastfm for artist='{artist}', title='{title}', subtitle='{subtitle}'")
+    def _perform_track_search(self, artists:list[str], title: str):
 
         # lastfm only lists a single artist for songs, so only search for
         # the first artist in the given list
-        main_artist = normalized_song_info.artists[0]
-        normalized_title = normalized_song_info.title
-        if normalized_song_info.subtitle is not None:
-            normalized_title = f"{normalized_title} {normalized_song_info.subtitle}"
+        main_artist = artists[0]
+        if PRINT_DEBUG:
+            print(f"searching lastfm for artist='{main_artist}', title='{title}'")
 
-        track_search = self.lastfm.search_for_track(artist_name=main_artist, track_name=normalized_title)
+
+        track_search = self.lastfm.search_for_track(artist_name=main_artist, track_name=title)
         tracks = track_search.get_next_page()
 
-        # And just in case, search for the unnormalized data as well
-        unnormalized_title = title
-        if subtitle is not None:
-            unnormalized_title = f"{unnormalized_title} {subtitle}"
-        unnormalized_search = self.lastfm.search_for_track(artist_name=artist, track_name=unnormalized_title)
-        tracks.extend(unnormalized_search.get_next_page())
         if PRINT_DEBUG:
             print(f"found {len(tracks)} tracks")
         track_infos = self._lastfm_to_basic_track(tracks)
         return track_infos
     
-    def _perform_artist_search(self, normalized_artists: list[str], artist: str):
+    def _perform_artist_search(self, artists: list[str]):
         # lastfm only lists a single artist for songs, so only search for
         # the first artist in the given list
-        artist_search = self.lastfm.search_for_artist(normalized_artists[0])
-
-        # If the normalized artist info didn't return any results,
-        # fall back to the unnormalized arist string
-        if artist_search.get_total_result_count() == 0:
-            artist_search = self.lastfm.search_for_artist(artist)
-        
+        artist_search = self.lastfm.search_for_artist(artists[0])
         found_artists = artist_search.get_next_page()
         artist_infos = self._lastfm_to_basic_artist(found_artists)
         return artist_infos

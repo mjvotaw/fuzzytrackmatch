@@ -79,7 +79,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         """Attempts to find the best matching artist for the given artist string"""
         artists = split_artists(artist)
 
-        result_artists = self._perform_artist_search(artists, artist)
+        result_artists = self._do_several_fetch_artists(artists, artist)
         matching_artist = self.find_best_matching_artist(result_artists, artists)
         return matching_artist
 
@@ -88,12 +88,46 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         song_info = normalize_title_and_artists(artist, title, subtitle)
         if PRINT_DEBUG:
             print(song_info)
-        result_tracks = self._perform_track_search(song_info, artist, title, subtitle)
+        result_tracks = self._do_several_fetch_tracks(song_info, artist, title, subtitle)
         result_tracks = result_tracks
         matching_track = self.find_best_matching_track(result_tracks, song_info, artist, title, subtitle)
         if PRINT_DEBUG:
             print(matching_track)
         return matching_track
+    
+
+    def _do_several_fetch_artists(self, normalized_artists: list[str], artist: str):
+
+        artists = self._perform_artist_search(normalized_artists)
+        if len(normalized_artists) > 1 or normalized_artists[0] != artist:
+            artists += self._perform_artist_search([artist])
+        
+        return artists
+
+    
+    def _do_several_fetch_tracks(self, normalized_song_info: NormalizedSongInfo, artist: str, title: str, subtitles:str|None):
+        """Performs various searches for tracks using both normalized data
+        and unnormalized data.
+        """
+
+        # first search with normalized track data
+
+        tracks = self._perform_track_search(normalized_song_info.artists, normalized_song_info.title)
+        if normalized_song_info.subtitle is not None:
+            normalized_full_title = f"{normalized_song_info.title} {normalized_song_info.subtitle}"
+            tracks += self._perform_track_search(normalized_song_info.artists, normalized_full_title)
+        
+        # and now search for unnormalized data
+        # (we should probably figure out some heuristic to decide whether
+        # we got a good match from the normalized data)
+        tracks += self._perform_track_search([artist], title)
+        if subtitles is not None:
+            full_title = f"{title} {subtitles}"
+            tracks += self._perform_track_search([artist], full_title)
+        
+        return tracks
+
+
     
     def find_best_matching_track(self, tracks: list[BasicTrackInfo], song_info:NormalizedSongInfo, artist: str, title: str, subtitle:str|None):
         """Given a list of tracks, finds the track that best matches the given artist and title.
@@ -175,11 +209,11 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         return self.wh.resolve_genres(genre_names, 10)
     
     @abstractmethod
-    def _perform_artist_search(self, normalized_artists: list[str], artist:str) -> list[BasicArtistInfo[A]]:
+    def _perform_artist_search(self, artists: list[str]) -> list[BasicArtistInfo[A]]:
         pass
 
     @abstractmethod
-    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist:str, title:str, subtitle:str|None) -> list[BasicTrackInfo[T]]:
+    def _perform_track_search(self, artist:list[str], title:str) -> list[BasicTrackInfo[T]]:
         pass
 
     @abstractmethod

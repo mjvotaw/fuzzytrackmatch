@@ -12,25 +12,21 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
 
     #region BaseGenreSearch methods
 
-    def _perform_artist_search(self, normalized_artists: list[str], artist: str) -> list[BasicArtistInfo[Artist]]:
+    def _perform_artist_search(self, artists: list[str]) -> list[BasicArtistInfo[Artist]]:
         return []
     
 
-    def _perform_track_search(self, normalized_song_info: NormalizedSongInfo, artist: str, title: str, subtitle: str | None) -> list[BasicTrackInfo[Release]]:
+    def _perform_track_search(self, artists: list[str], title: str) -> list[BasicTrackInfo[Release]]:
 
-        main_artist = normalized_song_info.artists[0]
-        normalized_title = normalized_song_info.title
-        if normalized_song_info.subtitle is not None:
-            normalized_title = f"{normalized_title} {normalized_song_info.subtitle}"
-
-        results = self.discogs.search(normalized_title, artist=main_artist, result_type='release', per_page=10)
+        main_artist = artists[0]        
+        results = self.discogs.search(track=title, artist=main_artist, result_type='release', per_page=10)
         p1_results: list[SearchResult] = results.results
 
         basic_tracks: list[BasicTrackInfo[Release]] = []
         for result in p1_results:
             if result.id:
                 release = self.discogs.get_release(result.id)
-                basic_track = self._discogs_release_to_basic_track(release, normalized_title)
+                basic_track = self._discogs_release_to_basic_track(release, title)
                 if basic_track is not None:
                     basic_tracks.append(basic_track)
         return basic_tracks
