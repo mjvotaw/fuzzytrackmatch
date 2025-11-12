@@ -1,5 +1,4 @@
-from fuzzytrackmatch.discogs_api import DiscogsApiClient
-from fuzzytrackmatch.discogs_search import DiscogsSearch
+from fuzzytrackmatch import DiscogsSearch
 
 discogs = DiscogsSearch(api_key="YOUR_USER_KEY_HERE")
 

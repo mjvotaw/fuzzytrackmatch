@@ -1,4 +1,4 @@
-from fuzzytrackmatch.lastfm_search import LastFMSearch
+from fuzzytrackmatch import LastFMSearch
 
 l = LastFMSearch(api_key="YOUR_API_KEY_HERE")
 
