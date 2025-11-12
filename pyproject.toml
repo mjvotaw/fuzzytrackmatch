@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fuzzytrackmatch"
 version = "0.1.0"
-dependencies = ["pylast", "pyyaml"]
+dependencies = ["pylast", "pyyaml", "requests>=2.31"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

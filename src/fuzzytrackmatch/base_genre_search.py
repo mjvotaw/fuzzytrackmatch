@@ -89,7 +89,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         if PRINT_DEBUG:
             print(song_info)
         result_tracks = self._perform_track_search(song_info, artist, title, subtitle)
-        result_tracks = result_tracks[:2]
+        result_tracks = result_tracks
         matching_track = self.find_best_matching_track(result_tracks, song_info, artist, title, subtitle)
         if PRINT_DEBUG:
             print(matching_track)
@@ -148,13 +148,26 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         
         return all_artists_score + main_artist_score
 
+    def get_best_matching_title(self, target_title: str, titles: list[str]):
+        """Finds the title from the list of titles that
+        best matches the target_title
+        """
+        best_match = None
+        best_score = 0
+        for t in titles:
+            score = self.score_title(t, target_title)
+            if score > best_score:
+                best_match = t
+                best_score = score
+        
+        return best_match
 
     def score_title(self, a:str, b:str):
         """Determines the similarity of two strings.
         Returns a value between 0.0 and 1.0, a higher value indicates
         more similarity.
         """
-        r = SequenceMatcher(None, a.strip(), b.strip()).ratio()
+        r = SequenceMatcher(None, a.strip().lower(), b.strip().lower()).ratio()
         return r
     
     def _canonicalize_genres(self, genres: list[GenreTag]) -> list[list[str]]:
