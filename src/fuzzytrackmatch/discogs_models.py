@@ -32,6 +32,9 @@ class Artist:
             role=d.get("role"),
         )
 
+    def __str__(self) -> str:
+        return f"Artist(id={self.id}, name={self.name})"
+
 
 @dataclass
 class Track:
@@ -54,6 +57,10 @@ class Track:
             artists=artists,
             credits=credits,
         )
+
+    def __str__(self) -> str:
+        artist_names = ", ".join([a.name or "Unknown" for a in self.artists]) if self.artists else "Unknown"
+        return f"Track(position={self.position}, title={self.title}, artists={artist_names})"
 
 
 @dataclass
@@ -254,6 +261,11 @@ class Release:
             master=master,
         )
 
+    def __str__(self) -> str:
+        artist_names = ", ".join([a.name or "Unknown" for a in self.artists]) if self.artists else "Unknown"
+        genres_str = ", ".join(self.genres) if self.genres else "No genres"
+        return f"Release(id={self.id}, title={self.title}, artists={artist_names}, year={self.year}, genres={genres_str})"
+
 
 @dataclass
 class SearchResult:
@@ -291,6 +303,9 @@ class SearchResult:
             genre=list(d.get("genre") or []) if isinstance(d.get("genre"), list) else None,
             style=list(d.get("style") or []) if isinstance(d.get("style"), list) else None,
         )
+
+    def __str__(self) -> str:
+        return f"SearchResult(id={self.id}, type={self.type}, title={self.title}, year={self.year})"
 
 
 @dataclass
