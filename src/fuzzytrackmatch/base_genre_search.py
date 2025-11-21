@@ -12,28 +12,33 @@ class GenreTag:
 
 T = TypeVar('T')
 A = TypeVar('A')
+
 @dataclass
-class BasicTrackInfo(Generic[T]):
+class TrackInfo:
     title: str
     artists: list[str]
     source_url: str
+@dataclass
+class BasicTrackInfo(TrackInfo,Generic[T]):
     raw_object:T
 
 @dataclass
-class TrackAndGenres(Generic[T]):
-    track:BasicTrackInfo[T]
+class TrackAndGenres:
+    track:TrackInfo
     genres: list[GenreTag]
     canonicalized_genres: list[list[str]]
 
 @dataclass
-class BasicArtistInfo(Generic[A]):
+class ArtistInfo:
     artists: list[str]
     source_url: str
+@dataclass
+class BasicArtistInfo(ArtistInfo,Generic[A]):
     raw_object: A
     
 @dataclass 
-class ArtistAndGenres(Generic[A]):
-    artist:BasicArtistInfo[A]
+class ArtistAndGenres:
+    artist:ArtistInfo
     genres: list[GenreTag]
     canonicalized_genres: list[list[str]]
 
@@ -59,7 +64,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
             return None
         genres = self._get_genre_tags_from_artist(artist_info)
         canonicalized_genres = self._canonicalize_genres(genres)
-        artist_and_genre = ArtistAndGenres[A](artist=artist_info, genres=genres, canonicalized_genres=canonicalized_genres)
+        artist_and_genre = self._build_artist_and_genres(artist_info, genres, canonicalized_genres)
         return artist_and_genre
     
     def fetch_track_genres(self, artist: str, title: str, subtitle: str|None):
@@ -72,7 +77,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         
         genres = self._get_genre_tags_from_track(track)
         canonicalized_genres = self._canonicalize_genres(genres)
-        track_and_genres = TrackAndGenres[T](track=track, genres=genres, canonicalized_genres=canonicalized_genres)
+        track_and_genres = self._build_track_and_genres(track, genres, canonicalized_genres)
         return track_and_genres
 
     def fetch_artist(self, artist: str):
@@ -208,6 +213,13 @@ class BaseGenreSearch(ABC, Generic[T, A]):
         genre_names = [g.name for g in genres]
         return self.wh.resolve_genres(genre_names, 10)
     
+    def _build_track_and_genres(self, track:BasicTrackInfo, genres: list[GenreTag], canonicalized_genres: list[list[str]]):
+        return TrackAndGenres(track=TrackInfo(title=track.title, artists=track.artists, source_url=track.source_url), genres=genres, canonicalized_genres=canonicalized_genres)
+    
+    def _build_artist_and_genres(self, artist_info: BasicArtistInfo, genres: list[GenreTag], canonicalized_genres: list[list[str]]):
+        return ArtistAndGenres(artist=ArtistInfo(artists=artist_info.artists, source_url=artist_info.source_url), genres=genres, canonicalized_genres=canonicalized_genres)
+
+
     @abstractmethod
     def _perform_artist_search(self, artists: list[str]) -> list[BasicArtistInfo[A]]:
         pass

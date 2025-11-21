@@ -367,12 +367,12 @@
         - uplifting trance:
             - orchestral uplifting
         - vocal trance
+    - dubstep
     - uk garage:
         - 2-step
         - 4x4
         - bassline
         - breakstep
-        - dubstep
         - funky
         - grime
         - speed garage
@@ -381,10 +381,11 @@
         - boogie
         - dance-pop
     - progressive:
-        - progressive house/trance:
+        - progressive house:
             - disco house
             - dream house
             - space house
+        - progressive trance
         - progressive breaks
         - progressive drum & bass
         - progressive techno
@@ -605,9 +606,9 @@
     - vispop
     - wonky pop
     - j-pop
-    - k-pop
+    - k-pop:
       - korean pop
-    - c-pop
+    - c-pop:
       - cantopop
       - mandopop
       - hong kong english pop
@@ -622,6 +623,7 @@
         - neo soul
         - northern soul
 - rock:
+    - alt rock
     - alternative rock:
         - britpop:
             - post-britpop
