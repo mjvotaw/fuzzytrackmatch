@@ -125,7 +125,9 @@ class GenreWhitelist:
         self.whitelist = load_whitelist(C14N_TREE)
         self.c14n_branches = load_c14n_tree(C14N_TREE)
     
-    def resolve_genres(self, tags:list[str], count:int) -> list[list[str]]:
+    def resolve_genre(self, tag: str, count:int=10):
+        return self.resolve_genres([tag], count)
+    def resolve_genres(self, tags:list[str], count:int=10) -> list[list[str]]:
         """
         Resolves the given tags to so-called 'canonical' names.
         The 'canonical' name is a list of genres and parent genres.
@@ -162,8 +164,6 @@ class GenreWhitelist:
             if len(parents) > 0:
                 tags_all.append(parents)
     
-            # Stop if we have enough tags already, unless we need to find
-            # the most specific tag (instead of the most popular).
             if len(tags_all) >= count:
                 break
         
@@ -201,11 +201,6 @@ class GenreWhitelist:
             return False
         if genre in self.whitelist:
             return True
-
-        if "-" in genre:
-            genre = genre.replace("-", " ")
-            if genre in self.whitelist:
-                return True
         return False
     
     def normalize_tag(self, tag:str):
@@ -215,9 +210,22 @@ class GenreWhitelist:
         if tag in self.whitelist:
             return tag
         
+        # the tag might have hyphens when our whitelist doesn't expect
         if "-" in tag:
             tag = tag.replace("-", " ")
             if tag in self.whitelist:
                 return tag
+        
+        # the tag might have a variation on "and" that isn't expected
+        if "'n'" in tag:
+            replaced_tag = tag.replace("'n'", "and")
+            if replaced_tag in self.whitelist:
+                return replaced_tag
+            
+        if " n " in tag:
+            replaced_tag = tag.replace(" n ", " and ")
+            if replaced_tag in self.whitelist:
+                return replaced_tag
+        
     
         return None
