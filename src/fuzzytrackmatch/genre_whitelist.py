@@ -1,4 +1,4 @@
-# The contents of this file are primarily from the 'lastgenre' plugin from the music library manager Beets ( https://beets.io/ )
+# The contents of this file are primarily based on the 'lastgenre' plugin from the music library manager Beets ( https://beets.io/ )
 # Original file can be found at https://github.com/beetbox/beets/blob/master/beetsplug/lastgenre/__init__.py
 #
 # Copyright 2016, Adrian Sampson.
@@ -14,15 +14,10 @@
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 
-import codecs
 import os
 import yaml
 
 
-# default genre whitelist data was scraped from Wikipedia.
-# The scraper script is available at: https://gist.github.com/1241307
-
-WHITELIST = os.path.join(os.path.dirname(__file__), "genres.txt")
 C14N_TREE = os.path.join(os.path.dirname(__file__), "genres-tree.yaml")
 
 def deduplicate(seq):
@@ -48,21 +43,42 @@ def remove_subsets(list_of_lists):
     return result
 
 
-def flatten_tree(elem, path, branches):
-    """Flatten nested lists/dictionaries into lists of strings
-    (branches).
-    """
-    if not path:
-        path = []
+def flatten_tree(data):
+    result = []
+    
+    def flatten(item):
+        if isinstance(item, dict):
+            for key, value in item.items():
+                result.append(key)
+                flatten(value)
+        elif isinstance(item, list):
+            for element in item:
+                flatten(element)
+        elif isinstance(item, str):  # Only strings
+            result.append(item)
+    
+    flatten(data)
+    return result
 
-    if isinstance(elem, dict):
-        for k, v in elem.items():
-            flatten_tree(v, path + [k], branches)
-    elif isinstance(elem, list):
-        for sub in elem:
-            flatten_tree(sub, path, branches)
-    else:
-        branches.append(path + [str(elem)])
+def get_tree_paths(elem):
+    """Extract all root-to-leaf paths from nested lists/dictionaries.
+    """
+    def tree_paths(elem, path, branches):
+        if not path:
+            path = []
+
+        if isinstance(elem, dict):
+            for k, v in elem.items():
+                tree_paths(v, path + [k], branches)
+        elif isinstance(elem, list):
+            for sub in elem:
+                tree_paths(sub, path, branches)
+        else:
+            branches.append(path + [str(elem)])
+    branches = []
+
+    tree_paths(elem, [], branches)
+    return branches
 
 
 def find_parents(candidate, branches):
@@ -89,28 +105,24 @@ def load_whitelist(wl_filename):
     """Load a genre whitelist from the given wl_filename. 
     """
     whitelist = set()
-    wl_filename = normpath(wl_filename)
-    with open(wl_filename, "rb") as f:
-        for line in f:
-            line = line.decode("utf-8").strip().lower()
-            if line and not line.startswith("#"):
-                whitelist.add(line)
+    c14n_filename = normpath(wl_filename)
+    with open(c14n_filename, "r", encoding="utf-8") as f:
+        genres_tree = yaml.safe_load(f)
+        flattened_list = flatten_tree(genres_tree)
+        whitelist.update(flattened_list)
     return whitelist
 
 def load_c14n_tree(c14n_filename):
-    c14n_branches = []
-    # Read the tree
     c14n_filename = normpath(c14n_filename)
-    with codecs.open(c14n_filename, "r", encoding="utf-8") as f:
+    with open(c14n_filename, "r", encoding="utf-8") as f:
         genres_tree = yaml.safe_load(f)
-    flatten_tree(genres_tree, [], c14n_branches)
-    
-    return c14n_branches
+        c14n_branches = get_tree_paths(genres_tree)
+        return c14n_branches
 
 class GenreWhitelist:
 
     def __init__(self):
-        self.whitelist = load_whitelist(WHITELIST)
+        self.whitelist = load_whitelist(C14N_TREE)
         self.c14n_branches = load_c14n_tree(C14N_TREE)
     
     def resolve_genres(self, tags:list[str], count:int) -> list[list[str]]:
@@ -122,10 +134,10 @@ class GenreWhitelist:
         Returns a list of list of genre names
 
         Example:
-        if `tags` = ["dubstep"], this will return 
+        if `tags` = ["psytrance"], this will return 
         ```
         [
-            [ 'Dubstep', 'Uk Garage', 'Dance']
+            [ 'Psytrance', 'Goa Trance', 'Trance']
         ]
         ```  
          """
