@@ -1,10 +1,6 @@
 from dataclasses import dataclass
 import re
 
-anyFeat = re.compile(r"( |\()feat[. ]", re.IGNORECASE);    # does the string contain "feat." or "feat "?
-featWithParen = re.compile(r"\(feat[\.| ].*?\)", re.IGNORECASE) # does the string contain "(feat.<something>)" or "(feat <something>)"?
-featWithSpace = re.compile(r" feat[. ].*?$", re.IGNORECASE)    # does the string contain " feat.<something>" or " feat <something>"?
-
 @dataclass
 class NormalizedSongInfo:
     title: str
@@ -18,6 +14,7 @@ splitting the `artist` string into multiple artist names, and
 checking `title` and `subtitle` to see if they also  contain
 any secondary artist names.'''
     artists = split_artists(artist)
+    anyFeat = re.compile(r"( |\()(feat\.)|(ft\.)", re.IGNORECASE);    # does the title or subtitle contain "feat." or "feat "?
 
     if anyFeat.search(title) != None:
         split = separate_title_and_artist(title)
@@ -29,6 +26,7 @@ any secondary artist names.'''
         subtitle = split[0]
         artists = artists + split[1]
     
+    artists = list(dict.fromkeys(artists))
     return NormalizedSongInfo(title=title, subtitle=subtitle, artists=artists)
 
 
@@ -38,6 +36,9 @@ Sometimes song titles or subtitles will include things like "Feat. so 'n so",
 instead of it being in the artist string. So we need to split the 
 artist/artists from the rest of the title.
 '''
+    featWithParen = re.compile(r"\(((feat\.)|(ft\.)).*?\)", re.IGNORECASE) # does the string contain "(feat.<something>)" or "(feat <something>)"?
+    featWithSpace = re.compile(r" ((feat\.)|(ft\.)).*?$", re.IGNORECASE)    # does the string contain " feat.<something>" or " feat <something>"?
+
     match = featWithParen.search(title)
     if match is None:
         match = featWithSpace.search(title)

@@ -23,11 +23,13 @@ if results:
   print(results.canonicalized_genres)
 ```
 
-## ok cool, but how/why
+## ok cool but why
 
 I needed a tool to help me retrieve some song info, particularly genres, for a large set of user-provided track titles and artists. Turns out, people have different ideas on how to include things like additional artists or subtitles.
 
-Take, for instance, the song "Yeah!" by Usher, featuring Lil Jon and Ludacris. Some people might write the "artist" field as "Usher feat. Lil Jon & Ludacris", which is a problem, because lots of music platforms attribute songs to one and only one artist. Some people and platforms include it as part of the title, like "Yeah! (feat. Lil Jon, Ludacris)". Some people might include it as part of the "subtitle" field, which apparently isn't a thing on most music platforms.
+## Normalizing Artist Names
+
+Take, for instance, the song "Yeah!" by Usher, featuring Lil Jon and Ludacris. Some people might write the "artist" field as "Usher feat. Lil Jon & Ludacris", which is a problem, because lots of music platforms attribute songs to one and only one artist. Some people and platforms include it as part of the title, like "Yeah! (feat. Lil Jon, Ludacris)". Some people might include it as part of the "subtitle" field, which apparently isn't a thing on a lot of music platforms.
 
 So this library does some work to clean up the user input and split additional artists into an array of artist names before searching the music platform. It then uses [SequenceMatcher](https://docs.python.org/3/library/difflib.html) to do some basic sanity checking of the return results to find the best matching track.
 
