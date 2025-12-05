@@ -9,3 +9,6 @@ dependencies = ["pylast", "pyyaml", "requests>=2.31"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+fuzzytrackmatch = ["genres-tree.yaml"]
