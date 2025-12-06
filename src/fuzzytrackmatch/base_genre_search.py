@@ -18,6 +18,7 @@ class TrackInfo:
   title: str
   artists: list[str]
   source_url: str
+
 @dataclass
 class BasicTrackInfo(TrackInfo,Generic[T]):
   raw_object:T
@@ -32,6 +33,7 @@ class TrackAndGenres:
 class ArtistInfo:
   artists: list[str]
   source_url: str
+
 @dataclass
 class BasicArtistInfo(ArtistInfo,Generic[A]):
   raw_object: A
@@ -53,6 +55,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     self.artist_cutoff = artist_cutoff
     self.all_artists_weight = 1.0
     self.main_artist_weight = 0.5
+    self.any_artist_weight = 0.25
     self.wh = GenreWhitelist()
 
   def fetch_artist_genres(self, artist: str):
@@ -173,9 +176,18 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     sorted_result_artists = " ".join(sorted(result_artists))
     sorted_search_artists = " ".join(sorted(searched_artists))
 
+    # compare both sets of all artists, it's unlikely that they'll all be a perfect match,
+    # but a higher match here means that this is likely correct
     all_artists_score = SequenceMatcher(None, sorted_result_artists, sorted_search_artists).ratio() * self.all_artists_weight
-
+    # compare the first artist from both searched_artists and result_artists (which should be the "main" artist)
     main_artist_score = SequenceMatcher(None, result_artists[0], searched_artists[0]).ratio() * self.main_artist_weight
+    # and just in case the searched_artists and result_artists just disagree on which artist is the "main" artist,
+    # check and see if there are any very good matches.
+    any_artist_scores = [SequenceMatcher(None, result_artists[0], a).ratio() for a in searched_artists]
+    any_artist_scores = [s for s in any_artist_scores if s >= self.artist_cutoff * 0.9]
+    any_artist_score = sum(any_artist_scores) * self.any_artist_weight
+
+    total_score = all_artists_score + main_artist_score + any_artist_score
 
     if PRINT_DEBUG:
       print("===============")
@@ -183,9 +195,10 @@ class BaseGenreSearch(ABC, Generic[T, A]):
       print(f"searched_artists={searched_artists}")
       print(f"all_artists_score={all_artists_score}")
       print(f"main_artist_score={main_artist_score}")
+      print(f"any_artist_score={any_artist_score}")
       print("===============")
-    
-    return all_artists_score + main_artist_score
+
+    return total_score
 
   def get_best_matching_title(self, target_title: str, titles: list[str]):
     """Finds the title from the list of titles that
