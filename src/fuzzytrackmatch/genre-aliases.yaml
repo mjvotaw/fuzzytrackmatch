@@ -1,0 +1,301 @@
+# genre aliases
+# maps canonical genre names to their alternative names/spellings
+
+# trance subgenres
+psytrance:
+  - psychedelic trance
+  - psy
+  - goa psy trance
+
+tech trance:
+  - techno-trance
+  - techno/trance
+  - techtrance
+
+hands up:
+  - handz up
+  - handzup!
+  - dancecore
+  - euro-trance
+
+hard trance:
+  - maximaal
+
+# techno subgenres
+acid techno:
+  - acid
+
+ghettotech:
+  - detroit club
+  - detroit club music
+  - ghetto tech
+  - getotek
+  - ghettotek
+  - detroit bass
+
+free tekno:
+  - tekno
+  - freetekno
+  - hardtek
+
+tecno brega:
+  - technobrega
+  - tecnobrega
+
+nortec:
+  - nor-tec
+
+# house subgenres
+
+us garage:
+  - new york house
+  - new jersey sound
+
+uk garage:
+  - ukg
+  - plus-8
+  
+2-step:
+  - 2step
+  - two-step
+
+french house:
+  - french touch
+  - filter house
+  - tekfunk
+
+# eurodance/hardcore/hi-nrg subgenres
+hi-nrg:
+  - high energy
+  - high-energy
+
+eurobeat:
+  - italo-nrg
+
+gabber:
+  - gabba
+  - rotterdam hardcore
+  - early hardcore
+  - gabberhouse
+
+new beat:
+  - hardbeat
+
+# drum and bass subgenres
+drum and bass:
+  - dnb
+  - d&b
+  - d'n'b
+  - drum 'n' bass
+  - drumnbass
+
+liquid funk:
+  - liquid drum and bass
+  - liquid dnb
+  - liquid
+
+intelligent drum and bass:
+  - intelligent jungle
+  - intelligent
+  - intelligent dnb
+  - idb
+  - intelligent drum & bass
+  - light drum and bass
+  - atmospheric drum and bass
+
+idm:
+ - intelligent dance music
+ - braindance
+
+# electro subgenres
+electro:
+  - electro-funk
+  - electro-boogie
+
+
+synthpop:
+  - synth-pop
+
+technopop:
+  - techno-pop
+
+# downtempo subgenres
+downtempo:
+  - downbeat
+  - down-tempo
+
+trip hop:
+  - trip-hop
+
+chill out:
+  - chillout
+  - chill-out
+  - chill
+
+# breakbeat subgenres
+breakbeat:
+  - breaks
+  - break-beats
+
+breakbeat hardcore:
+  - hardcore rave
+  - oldskool hardcore
+
+broken beat:
+  - brokenbeat
+
+nu skool breaks:
+  - nuskool breaks
+
+# hip hop subgenres
+alternative hip hop:
+  - alternative rap
+  - experimental hip hop
+  - backpack rap
+  - hipster hip-hop
+
+g-funk:
+  - gangsta funk
+  - funk rap
+
+chopped and screwed:
+  - screwed and chopped
+  - slowed and throwed
+  - screw music
+  - screw
+
+horrorcore:
+  - horror rap
+  - death rap
+  - horror hip hop
+  - death hip hop
+  - murder rap
+  - shock rap
+  - psycho rap
+
+miami bass:
+  - booty bass
+  - booty music
+
+# jazz subgenres
+bebop:
+  - bop
+  - rebop
+
+dixieland:
+  - traditional jazz
+  - hot jazz
+  - new orleans jazz
+  - classic jazz
+
+jazz fusion:
+  - fusion jazz
+  - jazz-rock
+
+gypsy jazz:
+  - jazz manouche
+  - manouche jazz
+  - gypsy swing
+  - hot club jazz
+  - hot club-style jazz
+  - sinti jazz
+
+# pop subgenres
+bubblegum pop:
+  - bubblegum music
+  - bubblegum rock
+  - bubblegum
+
+new romanticism:
+  - new romantic
+  - blitz kids
+
+j-pop:
+  - jpop
+  - japanese pop
+
+k-pop:
+  - kpop
+  - korean pop
+
+c-pop:
+  - cpop
+  - chinese pop
+
+# r&b and soul subgenres
+rhythm and blues:
+  - r&b
+  - rnb
+  - r'n'b
+  - r and b
+  - r & b
+
+p-funk:
+  - p funk
+  - p. funk
+
+neo soul:
+  - nu soul
+  - nu-soul
+
+blue-eyed soul:
+  - white soul
+
+# rock subgenres
+
+rock:
+  - rock and roll
+  - rock 'n' roll
+  - rock & roll
+
+alternative rock:
+  - alt rock
+  - alt-rock
+
+shoegaze:
+  - shoegazing
+  - shoegazer
+  - nu-gaze
+  - newgaze
+
+nu metal:
+  - nü-metal
+  - nü metal
+  - nu-metal
+  - new metal
+  - neo-metal
+  - aggro-metal
+
+krautrock:
+  - kosmische musik
+  - kraut rock
+
+psychobilly:
+  - punkabilly
+
+d-beat:
+  - discore
+  - kängpunk
+  - discrust
+  - crust-beat
+
+# blues subgenres
+
+hokum blues:
+  - dirty blues
+  - bawdy blues
+
+delta blues:
+  - mississippi blues
+
+piedmont blues:
+  - east coast blues
+
+swamp blues:
+  - excello sound
+
+contemporary r&b:
+  - contemporary rnb
+  - contemporary rhythm and blues
+  - urban contemporary
+  - urban pop

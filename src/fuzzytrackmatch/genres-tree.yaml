@@ -9,8 +9,10 @@
     - cape jazz
     - chimurenga
     - coupé-décalé
+    - funaná
     - fuji music
     - genge
+    - griot
     - highlife
     - hiplife
     - isicathamiya
@@ -39,6 +41,8 @@
     - taarab
     - zouglou
 - asian:
+    - chinese classical
+    - indian classical
     - east asian:
         - anison
         - enka
@@ -47,6 +51,7 @@
         - taiwanese pop
     - fann at-tanbura
     - fijiri
+    - gamelan
     - khaliji
     - liwa
     - sawt
@@ -67,7 +72,8 @@
         - ragini
         - thai pop
 - avant-garde:
-    - experimental music
+    - experimental music:
+        - sound collage
     - lo-fi
     - musique concrète
 - blues:
@@ -78,12 +84,13 @@
     - canadian blues
     - chicago blues
     - classic female blues
-    - contemporary r&b
     - country blues
     - delta blues
     - detroit blues
     - electric blues
+    - modern electric blues
     - gospel blues
+    - harmonica blues
     - hill country blues
     - hokum blues
     - jazz blues
@@ -119,7 +126,6 @@
         - pagode
         - samba
         - samba rock
-        - tecnobrega
         - tropicalia
         - zouk-lambada
     - calypso
@@ -148,6 +154,7 @@
     - twoubadou
     - zouk
 - classical:
+    - andalusian classical
     - ballet
     - baroque:
         - baroque music
@@ -172,6 +179,13 @@
         - cantique
         - gregorian chant
     - sonata
+    - choral
+    - neo-romantic
+    - impressionist
+    - neo-classic
+    - post-modern
+    - romantic
+    - operetta
 - comedy:
     - comedy music
     - comedy rock
@@ -232,8 +246,9 @@
     - ambient dub
     - ambient house
     - ambient techno
-    - dark ambient
-    - drone music
+    - dark ambient:
+        - dungeon synth
+    - drone
     - illbient
     - isolationism
     - lowercase
@@ -257,7 +272,7 @@
     - disco:
         - cosmic disco
         - disco polo
-            - euro disco
+        - euro disco
         - italo disco
         - nu-disco
         - space disco
@@ -276,6 +291,7 @@
         - darkstep
         - drumfunk
         - drumstep
+        - halftime
         - hardstep
         - intelligent drum and bass
         - jump-up
@@ -294,7 +310,8 @@
         - electropop
     - eurodance:
         - bubblegum dance
-        - italo dance
+        - italo dance:
+            - lento violento
         - turbofolk
     - hardcore:
         - bouncy house
@@ -311,10 +328,12 @@
         - speedcore
         - terrorcore
         - uk hardcore
+        - j-core
     - hi-nrg:
         - eurobeat
         - hard nrg
-        - new beat
+        - new beat:
+            - hard beat
     - house:
         - acid house
         - chicago house
@@ -322,10 +341,15 @@
         - diva house
         - dutch house
         - electro house
+        - euro house
         - freestyle house
         - french house
-        - funky house
-        - ghetto house
+        - funky house:
+            - uk funky
+        - garage house
+        - ghetto house:
+            - footwork
+            - chicago juke
         - hardbag
         - hip house
         - italo house
@@ -336,16 +360,22 @@
         - swing house
         - tech house
         - tribal house
-        - uk hard house
+        - tropical house
+        - uk hard house:
+            - donk
         - us garage
         - vocal house
     - jungle
     - techno:
         - acid techno
+        - bleep techno
+        - deep techno
         - detroit techno
+        - dub techno
         - free tekno
         - ghettotech
-        - minimal
+        - hard techno
+        - minimal techno
         - nortec
         - schranz
         - techno-dnb
@@ -364,16 +394,20 @@
             - psyprog
             - suomisaundi
         - hard trance
+        - hands up
         - tech trance
         - uplifting trance:
             - orchestral uplifting
         - vocal trance
-    - dubstep
+        - neo trance
     - uk garage:
         - 2-step
         - 4x4
         - bassline
         - breakstep
+        - dubstep:
+            - brostep
+            - riddim
         - funky
         - grime
         - speed garage
@@ -414,21 +448,25 @@
     - indietronica
     - new rave
     - space rock
-    - synthpop
+    - synthpop:
+        - synthwave
     - synthpunk
 - electronica:
+    - abstract
     - berlin school
     - chillwave
     - electronic art music
     - electronic dance music
     - folktronica
     - freestyle music
-    - glitch
+    - glitch:
+        - glitch hop
     - idm
     - laptronica
     - skweee
     - sound art
     - synthcore
+    - vaporwave
 - industrial:
     - aggrotech
     - coldwave
@@ -436,6 +474,7 @@
     - dark electro
     - death industrial
     - electro-industrial
+    - ebm
     - electronic body music:
         - futurepop
     - industrial metal:
@@ -445,25 +484,47 @@
         - japanoise
         - power electronics
         - power noise
+        - harsh noise
     - witch house
 - folk:
+    - aboriginal
+    - andean music
+    - appalachian music
     - american folk revival
     - anti-folk
+    - basque music
     - british folk revival
+    - canzone napoletana
+    - carnatic
+    - catalan music
     - celtic music
+    - chacarera
     - contemporary folk
+    - copla
+    - cretan
+    - fado
     - filk music
+    - flamenco
     - freak folk
+    - ghazal
+    - gospel
+    - hawaiian
     - indie folk
     - industrial folk
     - neofolk
+    - polka
     - progressive folk
     - psychedelic folk
+    - romani
     - sung poetry
     - techno-folk
+    - volksmusik
 - hip hop:
     - alternative hip hop
     - avant-garde hip hop
+    - beatbox
+    - boom bap
+    - britcore
     - chap hop
     - christian hip hop
     - conscious hip hop
@@ -505,28 +566,36 @@
     - rap rock:
         - rap metal
         - rapcore
+    - ragga hip hop
     - songo-salsa
     - southern hip hop:
         - atlanta hip hop:
             - snap music
         - bounce music
+        - cloud rap
         - houston hip hop:
             - chopped and screwed
         - miami bass
+        - bass music
+        - baile funk
+    - thug rap
     - turntablism
     - underground hip hop
     - urban pasifika
     - west coast hip hop:
         - chicano rap
-        - jerkin'
+        - jerkin
 - jazz:
+    - afro-cuban jazz
     - asian american jazz
     - avant-garde jazz
     - bebop
+    - big band
     - boogie-woogie
     - british dance band
     - chamber jazz
     - continental jazz
+    - contemporary jazz
     - cool jazz
     - crossover jazz
     - cubop
@@ -557,6 +626,7 @@
     - shibuya-kei
     - ska jazz
     - smooth jazz
+    - space-age jazz
     - soul jazz
     - straight-ahead jazz
     - stride jazz
@@ -566,6 +636,43 @@
     - vocal jazz
     - west coast gypsy jazz
     - west coast jazz
+- latin:
+    - afro-cuban
+    - baião
+    - batucada
+    - beguine
+    - boogaloo
+    - bossanova
+    - carimbó
+    - cha-cha
+    - charanga
+    - conjunto
+    - corrido
+    - cubano
+    - danzon
+    - descarga
+    - gaita
+    - guaguancó
+    - guajira
+    - guaracha
+    - jibaro
+    - mpb
+    - marimba
+    - música criolla
+    - norteño
+    - nueva cancion
+    - nueva trova
+    - pachanga
+    - plena
+    - porro
+    - quechua
+    - rumba
+    - samba-canção
+    - son montuno
+    - sonero
+    - tango
+    - trova
+    - vallenato
 - other:
     - worldbeat
 - pop:
@@ -575,7 +682,9 @@
     - bubblegum pop
     - chanson
     - christian pop
+    - city pop
     - classical crossover
+    - ethno-pop
     - europop:
         - austropop
         - balkan pop
@@ -591,6 +700,7 @@
     - louisiana swamp pop
     - mexican pop
     - motorpop
+    - music hall
     - new romanticism
     - pop rap
     - popera
@@ -607,24 +717,27 @@
     - vispop
     - wonky pop
     - j-pop
-    - k-pop:
-      - korean pop
+    - k-pop
     - c-pop:
       - cantopop
       - mandopop
       - hong kong english pop
-
 - rhythm and blues:
+    - contemporary r&b
     - funk:
         - deep funk
         - go-go
         - p-funk
+        - bayou funk
+        - minneapolis sound
     - soul:
         - blue-eyed soul
         - neo soul
         - northern soul
+        - psychedelic soul
+        - uk street soul
 - rock:
-    - alt rock
+    - acoustic rock
     - alternative rock:
         - britpop:
             - post-britpop
@@ -643,13 +756,18 @@
         - sadcore
         - shoegaze
         - slowcore
+    - arena rock
     - art rock
+    - avant-garde rock
     - beat music
     - chinese rock
     - christian rock
+    - classic rock
     - dark cabaret
     - desert rock
+    - doo wop
     - experimental rock
+    - ethereal rock
     - folk rock
     - garage rock
     - glam rock
@@ -662,7 +780,8 @@
         - christian metal
         - death metal:
             - death/doom
-            - goregrind
+            - goregrind:
+                - pornogrind
             - melodic death metal
             - technical death metal
         - doom metal:
@@ -700,12 +819,16 @@
             - progressive thrash metal
             - teutonic thrash metal
         - traditional heavy metal
+    - horror rock
+    - j-rock
+    - k-rock
     - math rock
     - new wave:
         - world fusion
     - paisley underground
     - pop rock
     - post-punk:
+        - dark wave
         - gothic rock
         - no wave
         - noise rock
@@ -715,11 +838,13 @@
         - krautrock
         - new prog
         - rock in opposition
+        - symphonic rock
     - psychedelic rock:
         - acid rock
         - freakbeat
         - neo-psychedelia
         - raga rock
+    - pub rock
     - punk rock:
         - anarcho punk:
             - crust punk:
@@ -734,7 +859,9 @@
         - grindcore:
             - crustgrind
             - noisegrind
+            - noisecore
         - hardcore punk:
+            - melodic hardcore
             - post-hardcore:
                 - emo:
                     - screamo
@@ -749,15 +876,19 @@
         - ska punk:
             - ska-core
         - skate punk
-    - rock and roll
+    - rock opera
     - southern rock
     - sufi rock
     - surf rock
     - visual kei:
         - nagoya kei
 - reggae:
+    - dub poetry
+    - mento
     - roots reggae
     - reggae fusion
+    - reggae gospel
+    - reggae-pop
     - reggae en español:
         - spanish reggae
         - reggae 110
@@ -771,3 +902,13 @@
         - 2 tone
         - dub
         - rocksteady
+    - steel band
+- brass and military:
+    - brass band
+    - marches
+    - military
+    - pipe and drum
+- childrens:
+    - educational
+    - nursery rhymes
+    - story

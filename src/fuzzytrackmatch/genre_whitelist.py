@@ -18,7 +18,8 @@ import os
 import yaml
 
 
-C14N_TREE = os.path.join(os.path.dirname(__file__), "genres-tree.yaml")
+C14N_TREE_FILEPATH = os.path.join(os.path.dirname(__file__), "genres-tree.yaml")
+GENRE_ALIASES_FILEPATH = os.path.join(os.path.dirname(__file__), "genre-aliases.yaml")
 
 def deduplicate(seq):
   """Remove duplicates from sequence while preserving order."""
@@ -119,14 +120,22 @@ def load_c14n_tree(c14n_filename):
     c14n_branches = get_tree_paths(genres_tree)
     return c14n_branches
 
+def load_aliases(aliases_filename):
+  aliases_filename = normpath(aliases_filename)
+  with open(aliases_filename, "r", encoding="utf-8") as f:
+    genre_aliases = yaml.safe_load(f)
+    return genre_aliases
+
 class GenreWhitelist:
 
   def __init__(self):
-    self.whitelist = load_whitelist(C14N_TREE)
-    self.c14n_branches = load_c14n_tree(C14N_TREE)
-  
+    self.whitelist = load_whitelist(C14N_TREE_FILEPATH)
+    self.c14n_branches = load_c14n_tree(C14N_TREE_FILEPATH)
+    self.genre_aliases = load_aliases(GENRE_ALIASES_FILEPATH)
+
   def resolve_genre(self, tag: str, count:int=10):
     return self.resolve_genres([tag], count)
+  
   def resolve_genres(self, tags:list[str], count:int=10) -> list[list[str]]:
     """
     Resolves the given tags to so-called 'canonical' names.
@@ -146,10 +155,9 @@ class GenreWhitelist:
     if not tags:
       return []
 
-    tag_names = [tag.lower() for tag in tags]
-    tag_names = [self.normalize_tag(tag) for tag in tag_names]
+    tag_names = [self.normalize_tag(tag) for tag in tags]
     tag_names = deduplicate([t for t in tag_names if t is not None])
-    
+
     # Extend the list to consider tags parents in the c14n tree
     tags_all = []
     for tag in tag_names:
@@ -203,12 +211,29 @@ class GenreWhitelist:
       return True
     return False
   
+  def find_alias(self, tag:str):
+    """Find the canonical name for the given tag, if the tag is
+    a known alias of a genre."""
+    for genre, aliases in self.genre_aliases.items():
+      if tag in aliases:
+        return genre
+    
+    return None
+
   def normalize_tag(self, tag:str):
     """Tries to figure out if some variation of the given tag exists in our whitelist.
     If so, returns that variant, otherwise returns None
     """
+
+    tag = tag.lower()
+
     if tag in self.whitelist:
       return tag
+    
+    # is the tag a common alias of a known genre?
+    alias = self.find_alias(tag)
+    if alias is not None:
+      return alias
     
     # the tag might have hyphens when our whitelist doesn't expect
     if "-" in tag:
@@ -217,15 +242,13 @@ class GenreWhitelist:
         return tag
     
     # the tag might have a variation on "and" that isn't expected
-    if "'n'" in tag:
-      replaced_tag = tag.replace("'n'", "and")
-      if replaced_tag in self.whitelist:
-        return replaced_tag
-      
-    if " n " in tag:
-      replaced_tag = tag.replace(" n ", " and ")
-      if replaced_tag in self.whitelist:
-        return replaced_tag
+    and_replacements = ["'n'", " n ", " & "]
+    for and_replacement in and_replacements:
+      if and_replacement in tag:
+        tag = tag.replace(and_replacement, " and ")
+        tag = tag.replace("  ", " ")
     
+    if tag in self.whitelist:
+      return tag
   
     return None
