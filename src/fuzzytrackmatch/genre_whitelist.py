@@ -16,6 +16,19 @@
 
 import os
 import yaml
+from dataclasses import dataclass
+
+@dataclass
+class GenreTag:
+  name: str
+  score: float
+
+  @classmethod
+  def from_dict(cls, data):
+    return cls(
+      name=data.get('name'),
+      score=data.get('score')
+    )
 
 
 C14N_TREE_FILEPATH = os.path.join(os.path.dirname(__file__), "genres-tree.yaml")
@@ -26,7 +39,7 @@ def deduplicate(seq):
   seen = set()
   return [x for x in seq if x not in seen and not seen.add(x)]
 
-def remove_subsets(list_of_lists):
+def remove_subsets(list_of_lists: list[list[str]]):
   """Remove lists from the sequence that are a subset of another list."""
   result = []
 
@@ -84,7 +97,8 @@ def get_tree_paths(elem):
 
 def find_parents(candidate, branches):
   """Find parents genre of a given genre, ordered from the closest to
-  the further parent.
+  the further parent. Returns a list of genres, including the given
+  `candidate` genre, and parent genres
   """
   for branch in branches:
     try:
@@ -134,9 +148,10 @@ class GenreWhitelist:
     self.genre_aliases = load_aliases(GENRE_ALIASES_FILEPATH)
 
   def resolve_genre(self, tag: str, count:int=10):
-    return self.resolve_genres([tag], count)
+    genre_tag = GenreTag(name=tag, score=1)
+    return self.resolve_genres([genre_tag], count)
   
-  def resolve_genres(self, tags:list[str], count:int=10) -> list[list[str]]:
+  def resolve_genres(self, tags:list[GenreTag], count:int=10) -> list[list[GenreTag]]:
     """
     Resolves the given tags to so-called 'canonical' names.
     The 'canonical' name is a list of genres and parent genres.
@@ -155,31 +170,31 @@ class GenreWhitelist:
     if not tags:
       return []
 
-    tag_names = [self.normalize_tag(tag) for tag in tags]
+    tag_names = [self.normalize_tag(tag.name) for tag in tags]
     tag_names = deduplicate([t for t in tag_names if t is not None])
 
-    # Extend the list to consider tags parents in the c14n tree
-    tags_all = []
+    tags_all: list[list[str]] = []
     for tag in tag_names:
-      # Add parents that are in the whitelist, or add the oldest
-      # ancestor if no whitelist
-      parents = [
-        x
-        for x in find_parents(tag, self.c14n_branches)
-        if self.is_allowed(x)
-      ]
-
+      parents = find_parents(tag, self.c14n_branches)
       if len(parents) > 0:
         tags_all.append(parents)
-  
-      if len(tags_all) >= count:
-        break
     
-    tag_names = remove_subsets(tags_all)
-    tag_names = [[self._format_tag(x) for x in group if self.is_allowed(x)] for group in tag_names]
-
-    return tag_names[: count]
-
+    canonized_tag_names = remove_subsets(tags_all)
+    tag_scores = self._sum_tag_scores(tags)
+    canonized_genre_tags = [[GenreTag(name=tag.title(), score=tag_scores[tag] if tag in tag_scores else 1) for tag in group] for group in canonized_tag_names]
+    return canonized_genre_tags
+    
+  def _sum_tag_scores(self, tags: list[GenreTag]):
+    tag_scores: dict[str, float] = {}
+    for tag in tags:
+      tag_name = self.normalize_tag(tag.name)
+      if tag_name is None:
+        continue
+      if tag_name not in tag_scores:
+        tag_scores[tag_name] = 0
+      tag_scores[tag_name] += tag.score
+    return tag_scores
+  
   def _get_depth(self, tag):
     """Find the depth of a tag in the genres tree."""
     depth = None

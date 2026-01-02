@@ -29,7 +29,7 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
         if any(prev_track.raw_object.id == result.id for prev_track in previous_tracks):
           continue
         # skip this release if it's not even close to what we're looking for
-        if self._sanity_check_result_title(result.title, title, main_artist) == False:
+        if result.title is None or self._sanity_check_result_title(result.title, title, main_artist) == False:
           continue
         release = self.discogs.get_release(result.id)
         basic_track = self._discogs_release_to_basic_track(release, title)
@@ -38,8 +38,8 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
     return basic_tracks
 
   def _get_genre_tags_from_track(self, track: BasicTrackInfo[Release]) -> list[GenreTag]:
-    genre_tags = [GenreTag(name=g, score=0) for g in track.raw_object.genres]
-    genre_tags += [GenreTag(name=s, score=0) for s in track.raw_object.styles]
+    genre_tags = [GenreTag(name=g, score=1) for g in track.raw_object.genres]
+    genre_tags += [GenreTag(name=s, score=1) for s in track.raw_object.styles]
     return genre_tags
   
   def _get_genre_tags_from_artist(self, artist: BasicArtistInfo) -> list[GenreTag]:

@@ -61,6 +61,8 @@ class DiscogsApiClient:
     url = self._full_url(path)
     retries = 0
     while True:
+      # sleep a for just a little over a second between each api call, this helps
+      # avoid running into 429's
       time.sleep(1.2)
       resp = self.session.request(method, url, params=params, json=json)
       self._update_rate_limit_from_response(resp)
