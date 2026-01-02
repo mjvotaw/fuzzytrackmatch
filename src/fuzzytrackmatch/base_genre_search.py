@@ -128,19 +128,19 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     """
 
     # first search with normalized track data
-
-    tracks = self._perform_track_search(normalized_song_info.artists, normalized_song_info.title)
+    tracks: list[BasicTrackInfo[T]] = []
+    tracks = self._perform_track_search(normalized_song_info.artists, normalized_song_info.title, tracks)
     if normalized_song_info.subtitle is not None:
       normalized_full_title = f"{normalized_song_info.title} {normalized_song_info.subtitle}"
-      tracks += self._perform_track_search(normalized_song_info.artists, normalized_full_title)
+      tracks += self._perform_track_search(normalized_song_info.artists, normalized_full_title, tracks)
     
     # and now search for unnormalized data
     # (we should probably figure out some heuristic to decide whether
     # we got a good match from the normalized data)
-    tracks += self._perform_track_search([artist], title)
+    tracks += self._perform_track_search([artist], title, tracks)
     if subtitles is not None:
       full_title = f"{title} {subtitles}"
-      tracks += self._perform_track_search([artist], full_title)
+      tracks += self._perform_track_search([artist], full_title, tracks)
     
     return tracks
 
@@ -152,7 +152,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     best_match = None
     best_similarity:float = 0
     for track in tracks:
-      title_sim = self.score_title(track.title, title)
+      title_sim = self.score_string(track.title, title)
       artist_sim = self._score_artist(track.artists, song_info.artists)
       
       if PRINT_DEBUG:
@@ -187,12 +187,12 @@ class BaseGenreSearch(ABC, Generic[T, A]):
 
     # compare both sets of all artists, it's unlikely that they'll all be a perfect match,
     # but a higher match here means that this is likely correct
-    all_artists_score = SequenceMatcher(None, sorted_result_artists, sorted_search_artists).ratio() * self.all_artists_weight
+    all_artists_score = self.score_string(sorted_result_artists, sorted_search_artists) * self.all_artists_weight
     # compare the first artist from both searched_artists and result_artists (which should be the "main" artist)
-    main_artist_score = SequenceMatcher(None, result_artists[0], searched_artists[0]).ratio() * self.main_artist_weight
+    main_artist_score = self.score_string(result_artists[0], searched_artists[0]) * self.main_artist_weight
     # and just in case the searched_artists and result_artists just disagree on which artist is the "main" artist,
     # check and see if there are any very good matches.
-    any_artist_scores = [SequenceMatcher(None, result_artists[0], a).ratio() for a in searched_artists]
+    any_artist_scores = [self.score_string(result_artists[0], a) for a in searched_artists]
     any_artist_scores = [s for s in any_artist_scores if s >= self.artist_cutoff * 0.9]
     any_artist_score = sum(any_artist_scores) * self.any_artist_weight
 
@@ -216,14 +216,14 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     best_match = None
     best_score = 0
     for t in titles:
-      score = self.score_title(t, target_title)
+      score = self.score_string(t, target_title)
       if score > best_score:
         best_match = t
         best_score = score
     
     return best_match
 
-  def score_title(self, a:str, b:str):
+  def score_string(self, a:str, b:str):
     """Determines the similarity of two strings.
     Returns a value between 0.0 and 1.0, a higher value indicates
     more similarity.
@@ -247,7 +247,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     pass
 
   @abstractmethod
-  def _perform_track_search(self, artist:list[str], title:str) -> list[BasicTrackInfo[T]]:
+  def _perform_track_search(self, artist:list[str], title:str, previous_tracks:list[BasicTrackInfo[T]]=[]) -> list[BasicTrackInfo[T]]:
     pass
 
   @abstractmethod

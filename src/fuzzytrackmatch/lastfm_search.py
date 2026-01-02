@@ -23,7 +23,7 @@ class LastFMSearch(BaseGenreSearch[pylast.Track, pylast.Artist]):
 
   #region BaseGenreSearch methods
 
-  def _perform_track_search(self, artists:list[str], title: str):
+  def _perform_track_search(self, artists:list[str], title: str, previous_tracks: list[BasicTrackInfo]):
 
     # lastfm only lists a single artist for songs, so only search for
     # the first artist in the given list

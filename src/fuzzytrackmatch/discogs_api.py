@@ -36,18 +36,21 @@ class DiscogsApiClient:
 
   def _update_rate_limit_from_response(self, resp: requests.Response) -> None:
     headers = resp.headers
-    try:
-      self.rate_limit = int(headers.get("X-Discogs-Ratelimit", self.rate_limit or 60))
-    except Exception:
-      pass
-    try:
-      self.rate_limit_used = int(headers.get("X-Discogs-Ratelimit-Used", self.rate_limit_used or 0))
-    except Exception:
-      pass
-    try:
-      self.rate_limit_remaining = int(headers.get("X-Discogs-Ratelimit-Remaining", self.rate_limit_remaining or 0))
-    except Exception:
-      pass
+    if "X-Discogs-Ratelimit" in headers:
+      try:
+        self.rate_limit = int(headers.get("X-Discogs-Ratelimit", self.rate_limit or 60))
+      except Exception:
+        pass
+    if "X-Discogs-Ratelimit-Used" in headers:
+      try:
+        self.rate_limit_used = int(headers.get("X-Discogs-Ratelimit-Used", self.rate_limit_used or 0))
+      except Exception:
+        pass
+    if "X-Discogs-Ratelimit-Remaining" in headers:
+      try:
+        self.rate_limit_remaining = int(headers.get("X-Discogs-Ratelimit-Remaining", self.rate_limit_remaining or 0))
+      except Exception:
+        pass
 
   def _full_url(self, path_or_url: str) -> str:
     if path_or_url.startswith("http://") or path_or_url.startswith("https://"):
@@ -58,6 +61,7 @@ class DiscogsApiClient:
     url = self._full_url(path)
     retries = 0
     while True:
+      time.sleep(1.2)
       resp = self.session.request(method, url, params=params, json=json)
       self._update_rate_limit_from_response(resp)
 
@@ -87,10 +91,11 @@ class DiscogsApiClient:
 
       # For other status codes, raise for status (will raise HTTPError for 4xx/5xx)
       resp.raise_for_status()
-
+      
       # Successful response
       if resp.status_code == 204:
         return {}
+        
       return resp.json()
 
   def get_release(self, release_id: int) -> Release:
