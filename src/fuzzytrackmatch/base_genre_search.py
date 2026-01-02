@@ -62,26 +62,35 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     """Attempts to find the best matching artist and a list of genre tags for
     the given artist string
     """
-    artist_info = self.fetch_artist(artist)
-    if artist_info is None:
-      return None
-    genres = self._get_genre_tags_from_artist(artist_info)
-    canonicalized_genres = self._canonicalize_genres(genres)
-    artist_and_genre = self._build_artist_and_genres(artist_info, genres, canonicalized_genres)
-    return artist_and_genre
+    try:
+      artist_info = self.fetch_artist(artist)
+      if artist_info is None:
+        return None
+      genres = self._get_genre_tags_from_artist(artist_info)
+      canonicalized_genres = self._canonicalize_genres(genres)
+      artist_and_genre = self._build_artist_and_genres(artist_info, genres, canonicalized_genres)
+      return artist_and_genre
+    except Exception as e:
+      print(f"BaseGenreSearch.fetch_artist_genres: error fetching artist: {e}")
+    return None
   
   def fetch_track_genres(self, artist: str, title: str, subtitle: str|None):
     """Attempts to find the best matching track and a list of genre tags for
     the given artist, title, and subtitle
     """
-    track = self.fetch_track(artist, title, subtitle)
-    if track is None:
-      return None
+    try:
+      track = self.fetch_track(artist, title, subtitle)
+      if track is None:
+        return None
+      
+      genres = self._get_genre_tags_from_track(track)
+      canonicalized_genres = self._canonicalize_genres(genres)
+      track_and_genres = self._build_track_and_genres(track, genres, canonicalized_genres)
+      return track_and_genres
+    except Exception as e:
+      print(f"BaseGenreSearch.fetch_track_genres: error fetching track: {e}")
     
-    genres = self._get_genre_tags_from_track(track)
-    canonicalized_genres = self._canonicalize_genres(genres)
-    track_and_genres = self._build_track_and_genres(track, genres, canonicalized_genres)
-    return track_and_genres
+    return None
 
   def fetch_artist(self, artist: str):
     """Attempts to find the best matching artist for the given artist string"""
