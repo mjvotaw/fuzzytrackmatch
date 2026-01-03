@@ -54,7 +54,7 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
     best_matching_title = super().get_best_matching_title(normalized_title, track_titles)
 
     if best_matching_title is not None:
-      basic_track = BasicTrackInfo(best_matching_title, artists=artist_names, source_url=str(release.url), raw_object=release)
+      basic_track = BasicTrackInfo(best_matching_title, artists=artist_names, source_url=str(release.url), raw_object=release, match_score=0)
       return basic_track
 
     else:
@@ -63,7 +63,11 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
   def _sanity_check_result_title(self, result_artist_title: str, search_title: str, search_artist: str):
     """Sanity check that the title returned by the search results is even 
        slightly close to what we're looking for. If it's not, then we
-       don't need to bother retrieving the full record from Discogs
+       don't need to bother retrieving the full record from Discogs.
+
+       The returned result is often the arist name and release title, which might be
+       the name of an album, not of a specific track. So we can't expect this to be
+       a perfect match.
     """
     if result_artist_title.count(" - ") == 1:
       result_parts = result_artist_title.split(" - ")
@@ -71,7 +75,7 @@ class DiscogsSearch(BaseGenreSearch[Release, Artist]):
       result_title = result_parts[1].strip()
       artist_score = self.score_string(result_artist, search_artist)
       title_score = self.score_string(result_title, search_title)
-      return artist_score > 0.3 and title_score > 0.3
+      return artist_score > 0.3 or title_score > 0.3
     else:
       search_artist_title = f"{search_artist} - {search_title}"
 

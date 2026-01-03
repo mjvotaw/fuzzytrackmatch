@@ -61,7 +61,7 @@ class LastFMSearch(BaseGenreSearch[pylast.Track, pylast.Artist]):
     return artist_infos
 
   def _lastfm_to_basic_track(self, tracks: list[pylast.Track]):
-    track_infos = [BasicTrackInfo(title=track.title or "", artists=[track.artist and track.artist.name or ""], source_url=track.get_url(), raw_object=track) for track in tracks]
+    track_infos = [BasicTrackInfo(title=track.title or "", artists=[track.artist and track.artist.name or ""], source_url=track.get_url(), raw_object=track, match_score=0) for track in tracks]
     return track_infos
 
   

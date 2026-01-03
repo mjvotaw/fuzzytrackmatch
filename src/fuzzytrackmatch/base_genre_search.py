@@ -8,11 +8,16 @@ from .genre_whitelist import GenreWhitelist, GenreTag
 T = TypeVar('T')
 A = TypeVar('A')
 
+# TODO: these are named really poorly
+# the goal is to not leak the `raw_object` out to whatever is calling
+# the search functions, because that's just intended for interal use
+# by the subclasses
 @dataclass
 class TrackInfo:
   title: str
   artists: list[str]
   source_url: str
+  match_score: float
 
 @dataclass
 class BasicTrackInfo(TrackInfo,Generic[T]):
@@ -98,7 +103,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
       canonicalized_genres = self.wh.resolve_genres(genres)
       
 
-      track_and_genres = self._build_track_and_genres(matching_track, genres, canonicalized_genres)
+      track_and_genres = self._build_track_and_genres(matching_track, best_match[1], genres, canonicalized_genres)
       return track_and_genres
     except Exception as e:
       print(f"BaseGenreSearch.fetch_track_genres: error fetching track: {e}")
@@ -186,25 +191,38 @@ class BaseGenreSearch(ABC, Generic[T, A]):
 
     for track in tracks:
       track_score = self.score_track(track, song_info, artist, title, subtitle)
+      # sanity check that this score is even kind of close
+      if track_score < 0.3:
+        continue
       tracks_and_scores.append((track, track_score))
     return tracks_and_scores
 
   def score_track(self, track: BasicTrackInfo, song_info: NormalizedSongInfo, artist: str, title: str, subtitle: str|None):
-    title_sim = self.score_string(track.title, title)
-    artist_sim = self._score_artist(track.artists, song_info.artists)
+    """
+    Compare the given track to the given song info.
+
+    Returns a value between 0.0 and 1.0
+    """
+    unnormalized_title_score = self.score_string(track.title, title)
+    normalized_title_score = self.score_string(track.title, song_info.title)
+    title_with_subtitle_score = self.score_string(track.title, f"{title} {subtitle}")
+
+    title_score = max(unnormalized_title_score, normalized_title_score, title_with_subtitle_score)
+    artist_score = self._score_artist(track.artists, song_info.artists)
       
     if PRINT_DEBUG:
       print(f"track.title={track.title}, track.artists={track.artists}")
-      print(f"title score={title_sim}")
-      print(f"artist score={artist_sim}")
+      print(f"title score={title_score}")
+      print(f"artist score={artist_score}")
     
-    if title_sim <= self.title_cutoff:
-      title_sim = 0
+    if title_score <= self.title_cutoff:
+      title_score = 0
     
-    if artist_sim <= self.artist_cutoff:
-      artist_sim = 0
+    if artist_score <= self.artist_cutoff:
+      artist_score = 0
     
-    return artist_sim + title_sim
+    total_score = (artist_score + title_score) / 2
+    return total_score
   
   def find_best_matching_artist(self, result_artists: list[BasicArtistInfo], searched_artists: list[str]):
 
@@ -221,7 +239,11 @@ class BaseGenreSearch(ABC, Generic[T, A]):
   
 
   def _score_artist(self, result_artists: list[str], searched_artists: list[str]):
+    """
+    Performs several different comparisons to determine similarity of the given lists of artists.
 
+    Returns a score that is normalized to 0.0-1.0
+    """
     sorted_result_artists = " ".join(sorted(result_artists))
     sorted_search_artists = " ".join(sorted(searched_artists))
 
@@ -237,6 +259,8 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     any_artist_score = sum(any_artist_scores) * self.any_artist_weight
 
     total_score = all_artists_score + main_artist_score + any_artist_score
+    max_score = self.all_artists_weight + self.main_artist_weight + (len(any_artist_scores) * self.any_artist_weight)
+    total_score = total_score / max_score
 
     if PRINT_DEBUG:
       print("===============")
@@ -271,8 +295,8 @@ class BaseGenreSearch(ABC, Generic[T, A]):
     r = SequenceMatcher(None, a.strip().lower(), b.strip().lower()).ratio()
     return r
     
-  def _build_track_and_genres(self, track:BasicTrackInfo, genres: list[GenreTag], canonicalized_genres: list[list[GenreTag]]):
-    return TrackAndGenres(track=TrackInfo(title=track.title, artists=track.artists, source_url=track.source_url), genres=genres, canonicalized_genres=canonicalized_genres)
+  def _build_track_and_genres(self, track:BasicTrackInfo, match_score: float, genres: list[GenreTag], canonicalized_genres: list[list[GenreTag]]):
+    return TrackAndGenres(track=TrackInfo(title=track.title, artists=track.artists, source_url=track.source_url, match_score=match_score), genres=genres, canonicalized_genres=canonicalized_genres)
   
   def _build_artist_and_genres(self, artist_info: BasicArtistInfo, genres: list[GenreTag], canonicalized_genres: list[list[GenreTag]]):
     return ArtistAndGenres(artist=ArtistInfo(artists=artist_info.artists, source_url=artist_info.source_url), genres=genres, canonicalized_genres=canonicalized_genres)
