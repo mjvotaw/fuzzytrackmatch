@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional, Tuple
 from .song_normalize import NormalizedSongInfo, normalize_title_and_artists, split_artists
 from .genre_whitelist import GenreWhitelist, GenreTag
+import traceback
 
 T = TypeVar('T')
 A = TypeVar('A')
@@ -107,6 +108,7 @@ class BaseGenreSearch(ABC, Generic[T, A]):
       return track_and_genres
     except Exception as e:
       print(f"BaseGenreSearch.fetch_track_genres: error fetching track: {e}")
+      traceback.print_exception(e)
       print(e)
     
     return None

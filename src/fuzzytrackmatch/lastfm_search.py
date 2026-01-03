@@ -109,7 +109,7 @@ class LastFMSearch(BaseGenreSearch[pylast.Track, pylast.Artist]):
       name = el.item.get_name();
       weight = el.weight
       if name and weight:
-        tags.append(GenreTag(name=name.lower(), score=weight))
+        tags.append(GenreTag(name=name.lower(), score=float(weight)))
 
     return tags
 
