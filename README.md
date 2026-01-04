@@ -47,3 +47,6 @@ Genre information is derived from user-submitted data (eg 'tags' in last.fm). Th
 
 Currently, last.fm's api doesn't consistently return `tags` information for all tracks.
 
+## Todos:
+- add option to cache network data
+- 

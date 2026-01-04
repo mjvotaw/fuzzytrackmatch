@@ -147,11 +147,15 @@ class GenreWhitelist:
     self.c14n_branches = load_c14n_tree(C14N_TREE_FILEPATH)
     self.genre_aliases = load_aliases(GENRE_ALIASES_FILEPATH)
 
-  def resolve_genre(self, tag: str, count:int=10):
+  def resolve_genre(self, tag: str):
     genre_tag = GenreTag(name=tag, score=1)
-    return self.resolve_genres([genre_tag], count)
+    return self.resolve_genres([genre_tag])
   
-  def resolve_genres(self, tags:list[GenreTag], count:int=10) -> list[list[GenreTag]]:
+  def resolve_genre_strs(self, tags: list[str]):
+    genres = [GenreTag(name=tag, score=1) for tag in tags]
+    return self.resolve_genres(genres)
+  
+  def resolve_genres(self, tags:list[GenreTag]) -> list[list[GenreTag]]:
     """
     Resolves the given tags to so-called 'canonical' names.
     The 'canonical' name is a list of genres and parent genres.
