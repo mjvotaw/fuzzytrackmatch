@@ -256,18 +256,27 @@ class GenreWhitelist:
     
     # the tag might have hyphens when our whitelist doesn't expect
     if "-" in tag:
-      tag = tag.replace("-", " ")
-      if tag in self.whitelist:
-        return tag
+      replaced_tag = tag.replace("-", " ")
+      if replaced_tag in self.whitelist:
+        return replaced_tag
+      replaced_tag = tag.replace("-", "")
+      if replaced_tag in self.whitelist:
+        return replaced_tag
+      
+    # the tag might have a space in it when our whitelist doesn't expect
+    if " " in tag:
+      replaced_tag = tag.replace(" ", "")
+      if replaced_tag in self.whitelist:
+        return replaced_tag
     
     # the tag might have a variation on "and" that isn't expected
     and_replacements = ["'n'", " n ", " & "]
     for and_replacement in and_replacements:
       if and_replacement in tag:
-        tag = tag.replace(and_replacement, " and ")
-        tag = tag.replace("  ", " ")
+        replaced_tag = tag.replace(and_replacement, " and ")
+        replaced_tag = replaced_tag.replace("  ", " ")
     
-    if tag in self.whitelist:
-      return tag
+        if replaced_tag in self.whitelist:
+          return replaced_tag
   
     return None

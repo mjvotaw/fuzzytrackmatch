@@ -18,3 +18,9 @@ def test_find_drum_n_bass():
   genres = wh.resolve_genre("drum 'n' bass")
   assert len(genres) == 1
   assert genres[0][0].name == "Drum And Bass"
+
+
+def test_diacritics():
+  genres = wh.resolve_genre("juju")
+  assert len(genres) == 1
+  assert genres[0][0].name == "Jùjú"
